@@ -1,0 +1,47 @@
+# TL-FastFood – Quick Start
+
+## 1. Yêu cầu
+- Node.js ≥ 18 (kèm npm)
+- MongoDB (local hoặc Atlas)
+
+## 2. Biến môi trường
+
+**backend/.env**
+PORT=5000
+MONGODB_URI=mongodb://127.0.0.1:27017/fastfood
+JWT_SECRET=change_this_secret
+JWT_EXPIRES=7d
+
+
+**fastfood/.env**
+REACT_APP_API_URL=http://localhost:5000
+
+(Đổi URL nếu backend deploy nơi khác.)
+
+## 3. Cài đặt & chạy
+
+### Backend
+cd backend
+npm install
+npm run seed # tùy chọn, tạo dữ liệu mẫu
+npm run dev # http://localhost:5000  =>này là chạy backend
+
+
+### Frontend
+cd fastfood
+npm install
+npm start # http://localhost:3000  =>này là chạy frontend
+
+
+> Nếu `nodemon` không chạy, nhớ `cd backend && npm install`.
+
+## 4. Build
+- Frontend: `cd fastfood && npm run build`
+- Backend deploy: `npm install --production` + `npm start`
+
+## 5. Ghi chú
+- Để đồng thời: mở hai terminal chạy backend và frontend.
+- Trang thanh toán COD hoạt động; VNPay đang mock (log console).
+- Giỏ hàng lưu localStorage, cần backend online để đăng nhập/checkout.
+
+Clone → tạo `.env` → `npm install` (backend + frontend) → chạy theo bước 3 là dùng được.

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>TL-FastFood — Thực Đơn Luxury</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --luxury-dark: #1a0033;
+        --luxury-gold: #ffd700;
+        --luxury-purple: #3b0078;
+        --luxury-accent: #ff33cc;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background-color: var(--luxury-dark);
+        color: white;
+      }
+
+      /* Header */
+      header {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .wrap {
+        width: 90%;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .site-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        font-weight: 700;
+        color: var(--luxury-gold);
+      }
+
+      .brand-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+      }
+
+      nav {
+        display: flex;
+        gap: 25px;
+      }
+
+      .nav-item {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 500;
+        transition: 0.3s;
+      }
+
+      .nav-item:hover,
+      .nav-item.active {
+        color: var(--luxury-gold);
+      }
+
+      /* Section */
+      main {
+        padding: 60px 0;
+      }
+
+      .section-title {
+        text-align: center;
+        color: var(--luxury-gold);
+        font-size: 2.3rem;
+        margin-bottom: 10px;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+      }
+
+      .section-sub {
+        text-align: center;
+        color: #ccc;
+        margin-bottom: 40px;
+      }
+
+      /* Filters */
+      .filters {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 30px;
+      }
+
+      .chip {
+        background: transparent;
+        border: 2px solid var(--luxury-gold);
+        color: var(--luxury-gold);
+        border-radius: 20px;
+        padding: 8px 18px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .chip:hover,
+      .chip.active {
+        background: var(--luxury-gold);
+        color: var(--luxury-dark);
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+      }
+
+      /* Grid */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 25px;
+      }
+
+      .card {
+        background: linear-gradient(145deg, rgba(59, 0, 120, 0.9), rgba(26, 0, 51, 0.95));
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+      }
+
+      .card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .card:hover img {
+        transform: scale(1.05);
+      }
+
+      .card-content {
+        padding: 15px;
+        text-align: center;
+      }
+
+      .card h3 {
+        color: var(--luxury-gold);
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+      }
+
+      .card p {
+        color: #d1c6ff;
+        font-size: 0.9rem;
+      }
+
+      .card .price {
+        color: var(--luxury-accent);
+        font-weight: 600;
+        margin: 8px 0;
+      }
+
+      .btn {
+        background: linear-gradient(90deg, var(--luxury-gold), #ffcc33);
+        border: none;
+        color: var(--luxury-dark);
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+      }
+
+      .btn:hover {
+        background: linear-gradient(90deg, var(--luxury-accent), var(--luxury-gold));
+        color: #fff;
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+      }
+
+      /* Footer */
+      footer {
+        background-color: #0b0017;
+        padding: 20px 0;
+        text-align: center;
+        border-top: 1px solid rgba(255, 215, 0, 0.2);
+        color: #d1c6ff;
+      }
+
+      .muted {
+        color: #aaa;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="site-header wrap">
+      <a class="brand" href="index.html">
+        <img
+          src="https://i.imgur.com/7b1xwZP.png"
+          alt="logo"
+          class="brand-img"
+        />
+        <span>TL-FastFood</span>
+      </a>
+
+      <nav class="nav" id="mainNav">
+        <a href="index.html" class="nav-item">Trang chủ</a>
+        <a href="menu.html" class="nav-item active">Thực đơn</a>
+        <a href="cart.html" class="nav-item">Giỏ hàng</a>
+      </nav>
+    </header>
+
+    <main class="wrap">
+      <section class="section">
+        <h2 class="section-title">🍔 Thực Đơn Sang Trọng</h2>
+        <p class="section-sub">
+          Chọn món bạn thích — tận hưởng hương vị đỉnh cao
+        </p>
+
+        <div class="filters">
+          <button class="chip active" data-filter="all">Tất cả</button>
+          <button class="chip" data-filter="burger">Burger</button>
+          <button class="chip" data-filter="chicken">Gà rán</button>
+          <button class="chip" data-filter="sides">Kèm</button>
+          <button class="chip" data-filter="drinks">Đồ uống</button>
+        </div>
+
+        <div id="menuGrid" class="grid">
+          <!-- Demo món ăn -->
+          <div class="card" data-category="burger">
+            <img src="https://i.imgur.com/1Yc6vXw.jpg" alt="Burger Bò Phô Mai" />
+            <div class="card-content">
+              <h3>Burger Bò Phô Mai</h3>
+              <p>Bánh burger mềm, thịt bò thơm, phô mai tan chảy.</p>
+              <div class="price">69.000đ</div>
+              <button class="btn">🛒 Thêm vào giỏ</button>
+            </div>
+          </div>
+
+          <div class="card" data-category="chicken">
+            <img src="https://i.imgur.com/LwHkR2Z.jpg" alt="Gà Rán Giòn Tan" />
+            <div class="card-content">
+              <h3>Gà Rán Giòn Tan</h3>
+              <p>Giòn rụm bên ngoài, mọng nước bên trong.</p>
+              <div class="price">59.000đ</div>
+              <button class="btn">🛒 Thêm vào giỏ</button>
+            </div>
+          </div>
+
+          <div class="card" data-category="drinks">
+            <img src="https://i.imgur.com/c4mHfWN.jpg" alt="Trà Đào Cam Sả" />
+            <div class="card-content">
+              <h3>Trà Đào Cam Sả</h3>
+              <p>Giải khát mát lạnh, hương thơm tinh tế.</p>
+              <div class="price">39.000đ</div>
+              <button class="btn">🛒 Thêm vào giỏ</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div>© 2025 TL-FastFood — Luxury Edition ✨</div>
+      <div class="muted">Thiết kế bởi Trung Kiên</div>
+    </footer>
+
+    <script>
+      // Filter món ăn theo danh mục
+      const chips = document.querySelectorAll(".chip");
+      const cards = document.querySelectorAll(".card");
+
+      chips.forEach((chip) =>
+        chip.addEventListener("click", () => {
+          chips.forEach((c) => c.classList.remove("active"));
+          chip.classList.add("active");
+
+          const filter = chip.dataset.filter;
+          cards.forEach((card) => {
+            if (filter === "all" || card.dataset.category === filter) {
+              card.style.display = "block";
+            } else {
+              card.style.display = "none";
+            }
+          });
+        })
+      );
+    </script>
+  </body>
+</html>
