@@ -6,6 +6,9 @@ import foodRoutes from "./routes/foodRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
+import categoryAdminRoutes from "./routes/admin/categoryAdminRoutes.js";
+import foodAdminRoutes from "./routes/admin/foodAdminRoutes.js";
 
 dotenv.config();
 
@@ -19,6 +22,9 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", (await import("./routes/authRoutes.js")).default);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/admin/categories", categoryAdminRoutes);
+app.use("/api/admin/foods", foodAdminRoutes);
 
 const PORT = process.env.PORT || 5000;
 mongoose

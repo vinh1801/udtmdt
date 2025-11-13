@@ -7,7 +7,9 @@ const foodSchema = new mongoose.Schema(
     category: { type: String, required: true, index: true },
     image: { type: String },
     description: { type: String },
-    isAvailable: { type: Boolean, default: true }
+    isAvailable: { type: Boolean, default: true },
+    isSpecial: { type: Boolean, default: false },
+    discountPercent: { type: Number, default: 0, min: 0, max: 100 }
   },
   { timestamps: true }
 );

@@ -1,33 +1,33 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { motion } from "framer-motion";
-
-const specials = [
-  {
-    id: 1,
-    name: "Combo Burger Bò Phô Mai",
-    price: "89.000đ",
-    image: "https://i.imgur.com/UKZ4Hsd.jpeg",
-  },
-  {
-    id: 2,
-    name: "Gà Rán Giòn Cay + Nước",
-    price: "75.000đ",
-    image: "https://i.imgur.com/XzLtrnU.jpeg",
-  },
-  {
-    id: 3,
-    name: "Khoai Tây + Gà Viên + Pepsi",
-    price: "65.000đ",
-    image: "https://i.imgur.com/hDnHKxT.jpeg",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import { getAllFoods } from "../services/foodService";
 
 export default function Specials() {
+  const [items, setItems] = useState([]);
+  const navigate = useNavigate();
+
   useEffect(() => {
     AOS.init({ duration: 900 });
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        // Lấy món có discountPercent > 0, sắp xếp giảm dần
+        const res = await getAllFoods({ special: true, limit: 12 });
+        setItems(res?.data || []);
+      } catch (e) {
+        setItems([]);
+      }
+    })();
+  }, []);
+
+  const goToMenuWithFocus = (foodId) => {
+    navigate("/menu", { state: { focusId: foodId } });
+  };
 
   return (
     <section
@@ -50,13 +50,13 @@ export default function Specials() {
           🌟 Ưu Đãi Nổi Bật
         </h2>
         <p className="mb-5 text-light">
-          Những combo được yêu thích nhất hôm nay — đặt liền tay kẻo hết!
+          Những combo có khuyến mãi cao nhất hôm nay!
         </p>
 
         <div className="row justify-content-center">
-          {specials.map((item) => (
+          {items.map((item) => (
             <motion.div
-              key={item.id}
+              key={item._id}
               className="col-10 col-sm-6 col-md-4 mb-4"
               whileHover={{
                 scale: 1.05,
@@ -66,7 +66,7 @@ export default function Specials() {
               data-aos="zoom-in"
             >
               <div
-                className="card text-light border-0 shadow"
+                className="card text-light border-0 shadow position-relative"
                 style={{
                   borderRadius: "18px",
                   background:
@@ -74,8 +74,25 @@ export default function Specials() {
                   overflow: "hidden",
                 }}
               >
+                {item.discountPercent > 0 && (
+                  <div
+                    className="position-absolute"
+                    style={{
+                      top: 10,
+                      left: 10,
+                      background: "rgba(255, 51, 204, 0.9)",
+                      padding: "6px 10px",
+                      borderRadius: 10,
+                      fontWeight: 800,
+                      fontSize: 12,
+                    }}
+                  >
+                    -{item.discountPercent}%
+                  </div>
+                )}
+
                 <motion.img
-                  src={item.image}
+                  src={`http://localhost:5000${item.image}`}
                   alt={item.name}
                   className="card-img-top"
                   style={{
@@ -86,6 +103,10 @@ export default function Specials() {
                     transition: "0.3s",
                   }}
                   whileHover={{ scale: 1.08 }}
+                  onError={(e) => {
+                    e.target.src =
+                      "https://cdn-icons-png.flaticon.com/512/3595/3595455.png";
+                  }}
                 />
                 <div className="card-body">
                   <h6
@@ -94,9 +115,27 @@ export default function Specials() {
                   >
                     {item.name}
                   </h6>
-                  <p className="text-light fw-semibold mb-2">
-                    💰 {item.price}
-                  </p>
+
+                  <div className="mb-2">
+                    {item.discountPercent > 0 ? (
+                      <>
+                        <span
+                          className="me-2"
+                          style={{ textDecoration: "line-through", opacity: 0.7 }}
+                        >
+                          {item.price?.toLocaleString()}đ
+                        </span>
+                        <span className="fw-bold" style={{ color: "#FF33CC" }}>
+                          {item.finalPrice?.toLocaleString()}đ
+                        </span>
+                      </>
+                    ) : (
+                      <span className="fw-semibold">
+                        {item.price?.toLocaleString()}đ
+                      </span>
+                    )}
+                  </div>
+
                   <motion.button
                     whileHover={{
                       scale: 1.05,
@@ -111,6 +150,7 @@ export default function Specials() {
                       borderRadius: "25px",
                       padding: "8px 20px",
                     }}
+                    onClick={() => goToMenuWithFocus(item._id)}
                   >
                     🛒 Đặt ngay
                   </motion.button>
@@ -118,6 +158,9 @@ export default function Specials() {
               </div>
             </motion.div>
           ))}
+          {items.length === 0 && (
+            <div className="text-light">Chưa có món ưu đãi.</div>
+          )}
         </div>
       </div>
     </section>

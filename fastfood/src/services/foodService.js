@@ -21,11 +21,13 @@ export const getAllFoods = async ({
   category = "",
   page = 1,
   limit = 50,
+  special,
 } = {}) => {
   try {
     const params = {};
     if (search) params.search = search;
     if (category) params.category = category;
+    if (typeof special !== "undefined") params.special = special;
     params.page = page;
     params.limit = limit;
 

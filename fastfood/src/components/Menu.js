@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getAllFoods } from "../services/foodService";
 
@@ -14,7 +14,10 @@ export default function Menu() {
   const [toast, setToast] = useState(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
+  const focusId = location.state?.focusId;
+  const [highlightId, setHighlightId] = useState(null);
 
   useEffect(() => {
     const fetchFoods = async () => {
@@ -37,10 +40,23 @@ export default function Menu() {
     fetchFoods();
   }, []);
 
-  const filteredFoods =
+  // Scroll/Highlight món khi điều hướng từ Specials
+  useEffect(() => {
+    if (!focusId) return;
+    const el = document.getElementById(`food-card-${focusId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightId(focusId);
+      const timer = setTimeout(() => setHighlightId(null), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [focusId, foods]);
+
+  const filteredFoods = useMemo(() => (
     selectedCategory === "Tất cả"
       ? foods
-      : foods.filter((item) => item.category === selectedCategory);
+      : foods.filter((item) => item.category === selectedCategory)
+  ), [foods, selectedCategory]);
 
   const ensureLoggedIn = (redirectPath) => {
     if (!user) {
@@ -92,8 +108,11 @@ export default function Menu() {
     const cartData = JSON.parse(localStorage.getItem("cart") || "[]");
     const existing = cartData.find((f) => f._id === item._id);
 
+    const priceToUse = item.finalPrice ?? item.price;
+    const payload = { ...item, price: priceToUse, quantity };
+
     if (existing) existing.quantity = (existing.quantity || 1) + quantity;
-    else cartData.push({ ...item, quantity });
+    else cartData.push(payload);
 
     localStorage.setItem("cart", JSON.stringify(cartData));
     window.dispatchEvent(new Event("cart-updated"));
@@ -102,7 +121,7 @@ export default function Menu() {
 
   const handleBuyNow = (item) => {
     if (!ensureLoggedIn("/payment")) return;
-    const checkoutItem = { ...item, quantity: 1 };
+    const checkoutItem = { ...item, price: item.finalPrice ?? item.price, quantity: 1 };
     navigate("/payment", {
       state: { cart: [checkoutItem], source: "buy-now" },
     });
@@ -217,12 +236,13 @@ export default function Menu() {
                       scale: 1.05,
                       boxShadow: "0 0 25px rgba(255,215,0,0.2)",
                     }}
-                    className="card text-center"
+                    className={`card text-center ${highlightId === item._id ? "border-warning" : ""}`}
+                    id={`food-card-${item._id}`}
                     style={{
                       background:
                         "linear-gradient(145deg, rgba(59,0,120,0.95), rgba(26,0,51,0.95))",
                       borderRadius: "18px",
-                      border: "1px solid rgba(255,215,0,0.15)",
+                      border: highlightId === item._id ? "2px solid #FFD700" : "1px solid rgba(255,215,0,0.15)",
                       color: "#fff",
                       cursor: "pointer",
                       overflow: "hidden",
@@ -269,9 +289,25 @@ export default function Menu() {
                           : item.description}
                       </div>
 
-                      <p className="text-light mb-3 fw-semibold">
-                        💰 {item.price?.toLocaleString()}đ
-                      </p>
+                      <div className="mb-3">
+                        {item.discountPercent > 0 ? (
+                          <>
+                            <span
+                              className="me-2"
+                              style={{ textDecoration: "line-through", opacity: 0.7 }}
+                            >
+                              {item.price?.toLocaleString()}đ
+                            </span>
+                            <span className="fw-bold" style={{ color: "#FF33CC" }}>
+                              {(item.finalPrice ?? item.price)?.toLocaleString()}đ
+                            </span>
+                          </>
+                        ) : (
+                          <span className="fw-semibold">
+                            {item.price?.toLocaleString()}đ
+                          </span>
+                        )}
+                      </div>
 
                       <div
                         className="d-flex justify-content-center align-items-center gap-2 mb-3"

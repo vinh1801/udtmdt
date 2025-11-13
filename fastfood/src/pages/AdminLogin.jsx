@@ -41,34 +41,54 @@ export default function AdminLogin() {
         alignItems: "center",
         justifyContent: "center",
         background:
-          "linear-gradient(135deg, #1a0033 0%, #3b0078 60%, #000 100%)",
+          "linear-gradient(135deg, #0f0b22 0%, #140a33 60%, #000 100%)",
         padding: "40px 20px",
       }}
     >
       <div
         style={{
-          background: "rgba(255, 255, 255, 0.05)",
+          background:
+            "linear-gradient(155deg, rgba(255,255,255,0.05), rgba(160,130,255,0.07))",
           backdropFilter: "blur(20px)",
-          borderRadius: "20px",
-          padding: "50px",
+          borderRadius: "16px",
+          padding: "40px 36px",
           maxWidth: "420px",
           width: "100%",
           color: "white",
-          boxShadow: "0 0 25px rgba(255, 215, 0, 0.25)",
-          border: "1px solid rgba(255,215,0,0.3)",
+          boxShadow: "0 0 26px rgba(255, 215, 0, 0.18)",
+          border: "1px solid rgba(255,215,0,0.25)",
           textAlign: "center",
         }}
       >
+        <div style={{ marginBottom: 14 }}>
+          <span
+            style={{
+              display: "inline-flex",
+              width: 42,
+              height: 42,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 10,
+              background:
+                "linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,51,204,0.35))",
+              border: "1px solid rgba(255,215,0,0.35)",
+              color: "#FFD700",
+              fontWeight: 800,
+            }}
+          >
+            A
+          </span>
+        </div>
         <h2
           style={{
             color: "#ffd700",
-            fontSize: "1.8rem",
-            fontWeight: "700",
-            marginBottom: "30px",
-            textShadow: "0 0 15px rgba(255, 215, 0, 0.6)",
+            fontSize: "1.6rem",
+            fontWeight: "800",
+            marginBottom: "22px",
+            textShadow: "0 0 15px rgba(255, 215, 0, 0.45)",
           }}
         >
-          Đăng nhập Quản trị 🔐
+          Đăng nhập Quản trị
         </h2>
 
         <form onSubmit={handleSubmit}>
@@ -89,7 +109,7 @@ export default function AdminLogin() {
             onChange={(e) => setPassword(e.target.value)}
           />
           {err && (
-            <div style={{ color: "#ff8080", marginBottom: 10 }}>{err}</div>
+            <div style={{ color: "#ff9b9b", marginBottom: 10 }}>{err}</div>
           )}
           <button style={buttonStyle} disabled={submitting} type="submit">
             {submitting ? "Đang đăng nhập..." : "Đăng nhập admin"}
@@ -102,10 +122,10 @@ export default function AdminLogin() {
 
 const inputStyle = {
   width: "100%",
-  marginBottom: "15px",
-  padding: "12px 15px",
-  borderRadius: "12px",
-  border: "1px solid rgba(255, 215, 0, 0.4)",
+  marginBottom: "12px",
+  padding: "12px 14px",
+  borderRadius: "10px",
+  border: "1px solid rgba(255, 215, 0, 0.35)",
   background: "rgba(255,255,255,0.07)",
   color: "#fff",
   outline: "none",
@@ -119,7 +139,7 @@ const buttonStyle = {
   border: "none",
   borderRadius: "12px",
   color: "#1a0033",
-  fontWeight: "700",
+  fontWeight: "800",
   cursor: "pointer",
   transition: "0.3s",
   opacity: "1",

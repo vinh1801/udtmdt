@@ -21,6 +21,9 @@ import OrderSuccess from "./components/OrderSuccess";
 import AdminRoute from "./components/AdminRoute";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
+import AdminCategories from "./pages/AdminCategories";
+import AdminFoods from "./pages/AdminFoods";
+
 
 import "../src/styles/luxury.css";
 
@@ -98,24 +101,15 @@ const router = createBrowserRouter(
         }
       />
 
-      {/* Admin login riêng */}
-      <Route
-        path="/admin/login"
-        element={
-          <Layout>
-            <AdminLogin />
-          </Layout>
-        }
-      />
+      {/* Admin login: KHÔNG dùng layout người dùng */}
+      <Route path="/admin/login" element={<AdminLogin />} />
 
-      {/* Khu vực admin */}
+      {/* Khu vực admin: KHÔNG dùng layout người dùng */}
       <Route
         path="/admin"
         element={
           <AdminRoute>
-            <Layout>
-              <Admin />
-            </Layout>
+            <Admin />
           </AdminRoute>
         }
       />
@@ -130,11 +124,30 @@ const router = createBrowserRouter(
       />
 
       <Route
+        path="/admin/foods"
+        element={
+          <AdminRoute>
+            <AdminFoods />
+          </AdminRoute>
+        }
+      />
+
+      <Route
         path="/register"
         element={
           <Layout>
             <Register />
           </Layout>
+        }
+      />
+
+
+      <Route
+        path="/admin/categories"
+        element={
+          <AdminRoute>
+            <AdminCategories />
+          </AdminRoute>
         }
       />
 
