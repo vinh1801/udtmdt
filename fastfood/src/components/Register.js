@@ -3,8 +3,9 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Register() {
+  const [username, setUsername] = useState("");
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(""); // KHÔNG bắt buộc
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -22,7 +23,7 @@ export default function Register() {
     setErr("");
     setSubmitting(true);
     try {
-      await register({ name, email, password });
+      await register({ username, name, email: email || undefined, password });
       navigate(redirectTo, { replace: true });
     } catch (error) {
       setErr(error?.response?.data?.message || "Đăng ký thất bại");
@@ -72,6 +73,14 @@ export default function Register() {
         <form onSubmit={handleSubmit}>
           <input
             type="text"
+            placeholder="Tên đăng nhập"
+            style={inputStyle}
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <input
+            type="text"
             placeholder="Họ và tên"
             style={inputStyle}
             required
@@ -80,9 +89,8 @@ export default function Register() {
           />
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Email (không bắt buộc)"
             style={inputStyle}
-            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />

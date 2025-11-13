@@ -9,6 +9,7 @@ import {
   login as apiLogin,
   register as apiRegister,
   getProfile,
+  USER_TOKEN_KEY,
 } from "../services/authService";
 
 export const AuthContext = createContext({
@@ -21,7 +22,7 @@ export const AuthContext = createContext({
 });
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [token, setToken] = useState(() => localStorage.getItem(USER_TOKEN_KEY));
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,10 +42,18 @@ export function AuthProvider({ children }) {
 
       try {
         const { user } = await getProfile();
-        if (active) setUser(user);
-      } catch (error) {
-        console.error("❌ Lỗi xác thực:", error.message);
-        localStorage.removeItem("token");
+        // CHẶN: nếu token_user nhưng role là admin -> không hợp lệ cho site user
+        if (user?.role === "admin") {
+          localStorage.removeItem(USER_TOKEN_KEY);
+          if (active) {
+            setToken(null);
+            setUser(null);
+          }
+        } else if (active) {
+          setUser(user);
+        }
+      } catch {
+        localStorage.removeItem(USER_TOKEN_KEY);
         if (active) {
           setToken(null);
           setUser(null);
@@ -62,7 +71,11 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const handleAuthSuccess = useCallback((data) => {
-    localStorage.setItem("token", data.token);
+    // CHẶN: không cho tài khoản admin đăng nhập vào site user
+    if (data?.user?.role === "admin") {
+      throw new Error("Tài khoản admin không sử dụng cho trang người dùng.");
+    }
+    localStorage.setItem(USER_TOKEN_KEY, data.token);
     setToken(data.token);
     setUser(data.user);
     return data;
@@ -85,7 +98,7 @@ export function AuthProvider({ children }) {
   );
 
   const logout = useCallback(() => {
-    localStorage.removeItem("token");
+    localStorage.removeItem(USER_TOKEN_KEY);
     setToken(null);
     setUser(null);
   }, []);

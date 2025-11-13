@@ -1,11 +1,48 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { getOrderById } from "../services/paymentService";
 
 export default function OrderSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
-  const order = location.state?.order;
+
+  // ưu tiên state từ điều hướng nội bộ (COD), fallback fetch khi từ VNPay return
+  const [order, setOrder] = useState(location.state?.order || null);
+
+  useEffect(() => {
+    if (order) return; // đã có dữ liệu từ state
+    const params = new URLSearchParams(location.search);
+    const orderId = params.get("orderId");
+    if (!orderId) return;
+
+    // lấy chi tiết đơn từ backend rồi map về cấu trúc UI hiện tại
+    (async () => {
+      try {
+        const o = await getOrderById(orderId);
+        if (!o) return;
+
+        setOrder({
+          items: (o.items || []).map((i) => ({
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity || 1,
+          })),
+          total: o.totalPrice || 0,
+          customer: {
+            name: o.customer?.name || "",
+            address: o.customer?.address || "",
+            phone: o.customer?.phone || "",
+            note: o.customer?.note || "",
+          },
+          method: "Thanh toán qua VNPay",
+          createdAt: o.createdAt || new Date().toISOString(),
+        });
+      } catch {
+        // bỏ qua
+      }
+    })();
+  }, [location.search, order]);
 
   const formattedDate = useMemo(() => {
     if (!order?.createdAt) return "";
@@ -35,9 +72,7 @@ export default function OrderSuccess() {
   return (
     <div
       className="container py-5 text-light"
-      style={{
-        minHeight: "70vh",
-      }}
+      style={{ minHeight: "70vh" }}
     >
       <motion.div
         className="mx-auto p-4 rounded"

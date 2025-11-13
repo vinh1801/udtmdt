@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // username hoặc email
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -18,7 +18,7 @@ export default function Login() {
     setErr("");
     setSubmitting(true);
     try {
-      await login({ email, password });
+      await login({ identifier, password });
       navigate(from, { replace: true });
     } catch (error) {
       setErr(error?.response?.data?.message || "Đăng nhập thất bại");
@@ -67,12 +67,12 @@ export default function Login() {
 
         <form onSubmit={handleSubmit}>
           <input
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Tên đăng nhập hoặc Email"
             style={inputStyle}
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
           />
           <input
             type="password"

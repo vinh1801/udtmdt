@@ -14,9 +14,16 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
+  // nếu chưa đăng nhập user -> chuyển về /login
   if (!user) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
+  // CHẶN: nếu lỡ có user context nhưng role là admin -> không cho vào site user
+  if (user.role === "admin") {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  // nếu vô tình tài khoản có role admin nhưng đăng nhập bằng phiên user thì vẫn cho vào (vì đây là phiên user)
   return children;
 }

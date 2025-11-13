@@ -26,4 +26,15 @@ router.get("/", async (_req, res) => {
   res.json(orders);
 });
 
+// GET /api/orders/:id  (lấy chi tiết 1 đơn)
+router.get("/:id", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false });
+    res.json(order);
+  } catch (e) {
+    res.status(400).json({ success: false });
+  }
+});
+
 export default router;

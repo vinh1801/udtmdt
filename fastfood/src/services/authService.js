@@ -1,13 +1,14 @@
 import axios from "axios";
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+export const USER_TOKEN_KEY = "token_user";
 
 const api = axios.create({
   baseURL: BASE_URL,
 });
 
 export function authHeader() {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem(USER_TOKEN_KEY);
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
@@ -28,7 +29,7 @@ export async function getProfile() {
   return response.data; // { user }
 }
 
-// Helpers tuỳ chọn để gọi API với header Authorization
+// Helpers
 export async function authorizedGet(url, config = {}) {
   return api.get(url, {
     ...config,

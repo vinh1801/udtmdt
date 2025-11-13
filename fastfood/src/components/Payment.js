@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { createVnpayPayment } from "../services/paymentService";
 
 export default function Payment() {
   const location = useLocation();
@@ -81,25 +82,48 @@ export default function Payment() {
     }, 1200);
   };
 
-  const handleVnpayPayment = () => {
+  const handleVnpayPayment = async () => {
     if (cart.length === 0) {
       alert("Giỏ hàng đang trống! Quay lại chọn món nhé 🍔");
       return;
     }
     if (!validateContactInfo()) return;
 
-    // Placeholder: ở đây sau này bạn gọi API VNPay
-    console.log("VNPay payload:", {
-      cart,
-      total,
-      customer: {
-        name: form.name,
-        phone: form.phone,
-        address: form.address,
-        note: form.note,
-      },
-    });
-    alert("Tính năng VNPay sẽ được tích hợp sau. Vui lòng thử lại sau!");
+    try {
+      setLoading(true);
+
+      const items = cart.map((i) => ({
+        foodId: i._id || i.foodId, // giữ tương thích khi item có _id hoặc foodId
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity || 1,
+      }));
+
+      const payload = {
+        customer: {
+          name: form.name,
+          phone: form.phone,
+          address: form.address,
+          note: form.note || "",
+        },
+        items,
+        totalPrice: total,
+        method: "CARD",
+      };
+
+      const result = await createVnpayPayment(payload);
+      if (result?.success && result?.paymentUrl) {
+        // chuyển hướng sang cổng VNPay
+        window.location.href = result.paymentUrl;
+      } else {
+        setLoading(false);
+        alert("Không tạo được link thanh toán. Vui lòng thử lại.");
+      }
+    } catch (e) {
+      console.error("Create VNPay payment error:", e);
+      setLoading(false);
+      alert("Có lỗi khi tạo thanh toán VNPay. Thử lại sau.");
+    }
   };
 
   if (cart.length === 0 && !loading) {
@@ -316,6 +340,7 @@ export default function Payment() {
                 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                disabled={loading}
                 onClick={
                   paymentMethod === "cod"
                     ? handleCashPayment

@@ -4,6 +4,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import foodRoutes from "./routes/foodRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
@@ -14,6 +16,8 @@ app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.get("/", (_req, res) => res.send("FASTFOOD API OK"));
 app.use("/api/foods", foodRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/auth", (await import("./routes/authRoutes.js")).default);
 
 const PORT = process.env.PORT || 5000;

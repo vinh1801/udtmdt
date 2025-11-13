@@ -6,7 +6,6 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 
-// 🧩 Import các component
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Specials from "./components/Specials";
@@ -19,11 +18,12 @@ import Register from "./components/Register";
 import Payment from "./components/Payment";
 import ProtectedRoute from "./components/ProtectedRoute";
 import OrderSuccess from "./components/OrderSuccess";
+import AdminRoute from "./components/AdminRoute";
+import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
 
-// 🎨 CSS tổng
 import "../src/styles/luxury.css";
 
-// ⚙️ Layout chung cho toàn bộ trang
 function Layout({ children }) {
   return (
     <>
@@ -34,7 +34,6 @@ function Layout({ children }) {
   );
 }
 
-// 🚀 Khai báo router
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -99,14 +98,25 @@ const router = createBrowserRouter(
         }
       />
 
+      {/* Admin login riêng */}
       <Route
-        path="/payment"
+        path="/admin/login"
         element={
-          <ProtectedRoute>
+          <Layout>
+            <AdminLogin />
+          </Layout>
+        }
+      />
+
+      {/* Khu vực admin */}
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
             <Layout>
-              <Payment />
+              <Admin />
             </Layout>
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
 
@@ -156,7 +166,6 @@ const router = createBrowserRouter(
   )
 );
 
-// 🧠 App chính
 export default function App() {
   return <RouterProvider router={router} />;
 }
