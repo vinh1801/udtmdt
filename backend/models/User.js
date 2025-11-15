@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema(
       lowercase: true
     },
     name: { type: String, required: true, trim: true },
+    phone: { type: String, required: true, trim: true },
     email: {
       type: String,
       unique: true,
@@ -18,7 +19,8 @@ const userSchema = new mongoose.Schema(
       sparse: true // cho phép null/undefined mà vẫn unique
     },
     password: { type: String, required: true, minlength: 6 },
-    role: { type: String, enum: ["user", "admin"], default: "user" }
+    role: { type: String, enum: ["user", "admin"], default: "user" },
+    isRestricted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

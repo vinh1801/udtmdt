@@ -52,7 +52,7 @@ export default function Cart() {
 
   const goToPayment = () => {
     if (cartItems.length === 0) {
-      alert("🛍️ Giỏ hàng đang trống!");
+      // Giỏ hàng trống đã có giao diện riêng hiển thị, không dùng alert
       return;
     }
     navigate("/payment", { state: { cart: cartItems, source: "cart" } });

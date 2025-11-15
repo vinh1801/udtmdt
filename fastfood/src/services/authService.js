@@ -29,6 +29,21 @@ export async function getProfile() {
   return response.data; // { user }
 }
 
+export async function updateProfile(data) {
+  const response = await authorizedPut("/api/auth/me", data);
+  return response.data; // { user }
+}
+
+export async function changePassword(payload) {
+  const response = await authorizedPut("/api/auth/change-password", payload);
+  return response.data; // { message }
+}
+
+export async function deleteAccount() {
+  const response = await authorizedDelete("/api/auth/me");
+  return response.data; // { message }
+}
+
 // Helpers
 export async function authorizedGet(url, config = {}) {
   return api.get(url, {

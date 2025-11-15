@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { createVnpayPayment } from "../services/paymentService";
+import { authorizedPost } from "../services/authService";
 
 export default function Payment() {
   const location = useLocation();
@@ -15,6 +16,7 @@ export default function Payment() {
     address: "",
     note: "",
   });
+  const [formError, setFormError] = useState("");
 
   const source = location.state?.source || "cart";
 
@@ -38,10 +40,13 @@ export default function Payment() {
 
   const validateContactInfo = () => {
     if (!form.name || !form.phone || !form.address) {
-      alert("Vui lòng nhập họ tên, số điện thoại và địa chỉ giao hàng.");
-      return false;
+      return "Vui lòng nhập họ tên, số điện thoại và địa chỉ giao hàng.";
     }
-    return true;
+    const cleaned = String(form.phone).replace(/\D/g, "");
+    if (!/^0\d{9}$/.test(cleaned)) {
+      return "Số điện thoại phải gồm 10 số và bắt đầu bằng 0.";
+    }
+    return "";
   };
 
   const resetCartIfNeeded = () => {
@@ -51,49 +56,22 @@ export default function Payment() {
     window.dispatchEvent(new Event("cart-updated"));
   };
 
-  const handleCashPayment = () => {
+  const handleCashPayment = async () => {
     if (cart.length === 0) {
-      alert("Giỏ hàng đang trống! Quay lại chọn món nhé 🍔");
+      // Nếu giỏ trống, chỉ điều hướng hoặc để UI trống xử lý, không dùng alert
       return navigate("/menu");
     }
-    if (!validateContactInfo()) return;
-
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      resetCartIfNeeded();
-      navigate("/order-success", {
-        replace: true,
-        state: {
-          order: {
-            items: cart,
-            total,
-            customer: {
-              name: form.name,
-              phone: form.phone,
-              address: form.address,
-              note: form.note || "",
-            },
-            method: "Thanh toán khi nhận hàng",
-            createdAt: new Date().toISOString(),
-          },
-        },
-      });
-    }, 1200);
-  };
-
-  const handleVnpayPayment = async () => {
-    if (cart.length === 0) {
-      alert("Giỏ hàng đang trống! Quay lại chọn món nhé 🍔");
+    setFormError("");
+    const errMsg = validateContactInfo();
+    if (errMsg) {
+      setFormError(errMsg);
       return;
     }
-    if (!validateContactInfo()) return;
 
     try {
       setLoading(true);
-
       const items = cart.map((i) => ({
-        foodId: i._id || i.foodId, // giữ tương thích khi item có _id hoặc foodId
+        foodId: i._id || i.foodId,
         name: i.name,
         price: i.price,
         quantity: i.quantity || 1,
@@ -108,21 +86,85 @@ export default function Payment() {
         },
         items,
         totalPrice: total,
-        method: "CARD",
+        method: "COD",
       };
 
-      const result = await createVnpayPayment(payload);
+      const res = await authorizedPost("/api/orders", payload);
+      const orderId = res?.data?.orderId;
+
+      resetCartIfNeeded();
+      navigate("/order-success", {
+        replace: true,
+        state: {
+          order: {
+            _id: orderId,
+            items: cart,
+            total,
+            customer: payload.customer,
+            method: "Thanh toán khi nhận hàng",
+            createdAt: new Date().toISOString(),
+          },
+        },
+      });
+    } catch (e) {
+      console.error("Create COD order error:", e);
+      setFormError(e?.response?.data?.message || "Tạo đơn COD thất bại");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVnpayPayment = async () => {
+    if (cart.length === 0) {
+      // Đã có UI riêng khi giỏ trống, không dùng alert nữa
+      return;
+    }
+    setFormError("");
+    const errMsg = validateContactInfo();
+    if (errMsg) {
+      setFormError(errMsg);
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const items = cart.map((i) => ({
+        foodId: i._id || i.foodId,
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity || 1,
+      }));
+
+      // Gửi thông tin đơn cho backend, để backend tự tạo đơn pending và build paymentUrl
+      const result = await createVnpayPayment({
+        customer: {
+          name: form.name,
+          phone: form.phone,
+          address: form.address,
+          note: form.note || "",
+        },
+        items,
+        totalPrice: total,
+        method: "VNPAY",
+      });
+
       if (result?.success && result?.paymentUrl) {
-        // chuyển hướng sang cổng VNPay
+        // Chỉ khi tạo link VNPay thành công mới redirect để thanh toán
         window.location.href = result.paymentUrl;
       } else {
         setLoading(false);
-        alert("Không tạo được link thanh toán. Vui lòng thử lại.");
+        setFormError(
+          result?.message || "Không tạo được link thanh toán. Vui lòng thử lại."
+        );
       }
     } catch (e) {
       console.error("Create VNPay payment error:", e);
       setLoading(false);
-      alert("Có lỗi khi tạo thanh toán VNPay. Thử lại sau.");
+      setFormError(
+        e?.response?.data?.message ||
+          "Có lỗi khi tạo thanh toán VNPay. Thử lại sau."
+      );
     }
   };
 
@@ -277,6 +319,9 @@ export default function Payment() {
             }}
           >
             <h5 className="text-warning mb-3">📮 Thông tin giao hàng</h5>
+            {formError && (
+              <div className="alert alert-danger py-2 mb-3">{formError}</div>
+            )}
             <form onSubmit={(e) => e.preventDefault()}>
               <div className="mb-3">
                 <label className="form-label">Họ và tên</label>

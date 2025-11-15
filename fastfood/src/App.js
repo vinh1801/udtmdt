@@ -23,6 +23,12 @@ import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import AdminCategories from "./pages/AdminCategories";
 import AdminFoods from "./pages/AdminFoods";
+import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
+import AdminOrders from "./pages/AdminOrders";
+import AdminOrderHistory from "./pages/AdminOrderHistory";
+import AdminStats from "./pages/AdminStats";
+import AdminUsers from "./pages/AdminUsers";
 
 
 import "../src/styles/luxury.css";
@@ -147,6 +153,64 @@ const router = createBrowserRouter(
         element={
           <AdminRoute>
             <AdminCategories />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Orders />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Profile />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/orders"
+        element={
+          <AdminRoute>
+            <AdminOrders />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/orders/history"
+        element={
+          <AdminRoute>
+            <AdminOrderHistory />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/stats"
+        element={
+          <AdminRoute>
+            <AdminStats />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users"
+        element={
+          <AdminRoute>
+            <AdminUsers />
           </AdminRoute>
         }
       />

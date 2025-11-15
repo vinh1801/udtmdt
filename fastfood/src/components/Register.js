@@ -5,6 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 export default function Register() {
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState(""); // KHÔNG bắt buộc
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
@@ -12,6 +13,16 @@ export default function Register() {
   const navigate = useNavigate();
   const location = useLocation();
   const { register } = useAuth();
+
+  const isValidPhone = (value) => {
+    const cleaned = String(value).replace(/\D/g, "");
+    return /^0\d{9}$/.test(cleaned);
+  };
+
+  const isValidEmail = (value) => {
+    if (!value) return true; // email không bắt buộc
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  };
 
   const redirectTo =
     location.state?.from?.pathname && location.state.from.pathname !== "/login"
@@ -23,7 +34,17 @@ export default function Register() {
     setErr("");
     setSubmitting(true);
     try {
-      await register({ username, name, email: email || undefined, password });
+      if (!isValidPhone(phone)) {
+        setErr("Số điện thoại phải gồm 10 số và bắt đầu bằng 0.");
+        setSubmitting(false);
+        return;
+      }
+      if (!isValidEmail(email)) {
+        setErr("Email không đúng định dạng.");
+        setSubmitting(false);
+        return;
+      }
+      await register({ username, name, phone, email: email || undefined, password });
       navigate(redirectTo, { replace: true });
     } catch (error) {
       setErr(error?.response?.data?.message || "Đăng ký thất bại");
@@ -86,6 +107,14 @@ export default function Register() {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            type="tel"
+            placeholder="Số điện thoại"
+            style={inputStyle}
+            required
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
           />
           <input
             type="email"

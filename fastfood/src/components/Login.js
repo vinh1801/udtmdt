@@ -21,7 +21,8 @@ export default function Login() {
       await login({ identifier, password });
       navigate(from, { replace: true });
     } catch (error) {
-      setErr(error?.response?.data?.message || "Đăng nhập thất bại");
+      const msg = error?.response?.data?.message || "Đăng nhập thất bại";
+      setErr(msg);
     } finally {
       setSubmitting(false);
     }

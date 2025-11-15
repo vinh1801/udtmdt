@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";                                                                                                                                                                                                                                                                                                                                                                                                                                             //design by vinh (udtmdt nhóm 11)
 import { NavLink, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaShoppingCart, FaChevronDown } from "react-icons/fa";
@@ -66,6 +66,12 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
+    try {
+      localStorage.removeItem("cart");
+      window.dispatchEvent(new Event("cart-updated"));
+    } catch (e) {
+      // ignore
+    }
     logout();
     setShowUserMenu(false);
     navigate("/login");
@@ -138,6 +144,11 @@ export default function Navbar() {
             <li className="nav-item">
               <NavLink className="nav-link text-light fw-semibold" to="/menu">
                 Thực đơn
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink className="nav-link text-light fw-semibold" to="/orders">
+                Đơn hàng
               </NavLink>
             </li>
           </ul>

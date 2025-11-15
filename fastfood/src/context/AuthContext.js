@@ -19,6 +19,7 @@ export const AuthContext = createContext({
   login: async () => {},
   register: async () => {},
   logout: () => {},
+  setUserFromProfile: () => {},
 });
 
 export function AuthProvider({ children }) {
@@ -44,6 +45,13 @@ export function AuthProvider({ children }) {
         const { user } = await getProfile();
         // CHẶN: nếu token_user nhưng role là admin -> không hợp lệ cho site user
         if (user?.role === "admin") {
+          localStorage.removeItem(USER_TOKEN_KEY);
+          if (active) {
+            setToken(null);
+            setUser(null);
+          }
+        } else if (user?.isRestricted) {
+          // User bị hạn chế: logout ngay
           localStorage.removeItem(USER_TOKEN_KEY);
           if (active) {
             setToken(null);
@@ -103,6 +111,11 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const setUserFromProfile = useCallback((profile) => {
+    if (!profile) return;
+    setUser(profile);
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
@@ -111,8 +124,9 @@ export function AuthProvider({ children }) {
       login,
       register,
       logout,
+      setUserFromProfile,
     }),
-    [user, token, loading, login, register, logout]
+    [user, token, loading, login, register, logout, setUserFromProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

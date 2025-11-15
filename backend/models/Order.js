@@ -2,11 +2,13 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
   {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true },
     customer: {
       name: String,
       address: String,
       phone: String,
-      method: { type: String, default: "CARD" } // CARD | COD | WALLET
+      note: String,
+      method: { type: String, default: "VNPAY" } // VNPAY | COD
     },
     items: [
       {
@@ -17,7 +19,14 @@ const orderSchema = new mongoose.Schema(
       }
     ],
     totalPrice: Number,
-    status: { type: String, default: "pending" } // pending | paid | failed
+    isPaid: { type: Boolean, default: false },
+    isRefunded: { type: Boolean, default: false },
+    refundedAt: { type: Date },
+    status: {
+      type: String,
+      enum: ["pending", "processing", "shipping", "completed", "failed"],
+      default: "pending"
+    }
   },
   { timestamps: true }
 );

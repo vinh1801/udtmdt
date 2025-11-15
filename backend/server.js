@@ -9,6 +9,8 @@ import adminRoutes from "./routes/adminRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import categoryAdminRoutes from "./routes/admin/categoryAdminRoutes.js";
 import foodAdminRoutes from "./routes/admin/foodAdminRoutes.js";
+import orderAdminRoutes from "./routes/admin/orderAdminRoutes.js";
+import userAdminRoutes from "./routes/admin/userAdminRoutes.js";
 
 dotenv.config();
 
@@ -25,6 +27,9 @@ app.use("/api/auth", (await import("./routes/authRoutes.js")).default);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/admin/categories", categoryAdminRoutes);
 app.use("/api/admin/foods", foodAdminRoutes);
+app.use("/api/admin/orders", orderAdminRoutes);
+app.use("/api/admin/users", userAdminRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 mongoose

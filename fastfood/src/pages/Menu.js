@@ -9,6 +9,7 @@ import "../styles/custom.css";
 export default function Menu() {
   const [foods, setFoods] = useState([]);
   const [category, setCategory] = useState("Tất cả");
+  const [notify, setNotify] = useState("");
   const navigate = useNavigate();
 
   // Lấy dữ liệu món ăn từ backend
@@ -25,6 +26,13 @@ export default function Menu() {
       ? foods
       : foods.filter((f) => f.category === category);
 
+  // Sắp xếp: món có giảm giá lên đầu, % giảm cao đứng trước
+  const sortedFoods = [...filteredFoods].sort((a, b) => {
+    const ad = Number(a.discountPercent) || 0;
+    const bd = Number(b.discountPercent) || 0;
+    return bd - ad;
+  });
+
   // Thêm vào giỏ hàng
   const addToCart = (food) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -32,7 +40,7 @@ export default function Menu() {
     if (existing) existing.quantity += 1;
     else cart.push({ ...food, quantity: 1 });
     localStorage.setItem("cart", JSON.stringify(cart));
-    alert(`✅ Đã thêm ${food.name} vào giỏ hàng!`);
+    setNotify(`Đã thêm ${food.name} vào giỏ hàng`);
   };
 
   // Mua ngay
@@ -48,6 +56,15 @@ export default function Menu() {
         <p>
           Chọn món bạn thích — bấm <span>Thêm</span> hoặc <span>Mua ngay</span>
         </p>
+
+        {notify && (
+          <div
+            className="alert alert-success py-2 px-3 mt-2"
+            style={{ maxWidth: 420, margin: "0 auto" }}
+          >
+            {notify}
+          </div>
+        )}
 
         <div className="category-bar">
           {["Tất cả", "Burger", "Chicken", "Rice", "Side", "Drink", "Combo"].map(
@@ -65,8 +82,8 @@ export default function Menu() {
       </div>
 
       <div className="menu-grid">
-        {filteredFoods.length > 0 ? (
-          filteredFoods.map((food) => (
+        {sortedFoods.length > 0 ? (
+          sortedFoods.map((food) => (
             <motion.div
               className="food-card neon-border"
               key={food._id}

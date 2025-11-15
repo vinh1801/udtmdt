@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
+
+import { Link } from "react-router-dom";
 import { useAdminAuth } from "../hooks/useAdminAuth";
+
 import { getCategories } from "../services/categoryService";
 import { adminGetFoods, adminCreateFood, adminUpdateFood, adminDeleteFood } from "../services/adminFoodService";
 
@@ -11,6 +14,12 @@ export default function AdminFoods() {
   const [err, setErr] = useState("");
   const [editing, setEditing] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [search, setSearch] = useState("");
+  const [discountFilter, setDiscountFilter] = useState("all"); // all | on | off
+  const [availableFilter, setAvailableFilter] = useState("all"); // all | available | unavailable
+  const [page, setPage] = useState(1);
+
   const [form, setForm] = useState({
     name: "",
     price: "",
@@ -18,6 +27,8 @@ export default function AdminFoods() {
     description: "",
     image: "",
     isAvailable: true,
+    hasDiscount: false,
+    discountPercent: "",
   });
 
   const refresh = async () => {
@@ -34,9 +45,57 @@ export default function AdminFoods() {
     }
   };
 
+  const filteredItems = items.filter((f) => {
+    const matchName = f.name?.toLowerCase().includes(search.toLowerCase());
+
+    let matchDiscount = true;
+    if (discountFilter === "on") {
+      matchDiscount = !!(f.discountPercent && f.discountPercent > 0);
+    } else if (discountFilter === "off") {
+      matchDiscount = !f.discountPercent || f.discountPercent <= 0;
+    }
+
+    let matchAvailable = true;
+    if (availableFilter === "available") {
+      matchAvailable = !!f.isAvailable;
+    } else if (availableFilter === "unavailable") {
+      matchAvailable = !f.isAvailable;
+    }
+
+    return matchName && matchDiscount && matchAvailable;
+  });
+
+  const pageSize = 10;
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pagedItems = filteredItems.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   useEffect(() => {
     refresh();
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, discountFilter, availableFilter, items.length]);
+
+  const startCreate = () => {
+    setEditing(null);
+    setForm({
+      name: "",
+      price: "",
+      category: "",
+      description: "",
+      image: "",
+      isAvailable: true,
+      hasDiscount: false,
+      discountPercent: "",
+    });
+    setErr("");
+    setShowModal(true);
+  };
 
   const startEdit = (f) => {
     setEditing(f._id);
@@ -47,12 +106,26 @@ export default function AdminFoods() {
       description: f.description || "",
       image: f.image || "",
       isAvailable: !!f.isAvailable,
+      hasDiscount: !!(f.discountPercent && f.discountPercent > 0),
+      discountPercent: f.discountPercent || "",
     });
+    setErr("");
+    setShowModal(true);
   };
 
   const cancelEdit = () => {
     setEditing(null);
-    setForm({ name: "", price: "", category: "", description: "", image: "", isAvailable: true });
+    setForm({
+      name: "",
+      price: "",
+      category: "",
+      description: "",
+      image: "",
+      isAvailable: true,
+      hasDiscount: false,
+      discountPercent: "",
+    });
+    setShowModal(false);
   };
 
   const handleSubmit = async (e) => {
@@ -66,6 +139,15 @@ export default function AdminFoods() {
       if (isNaN(p) || p <= 0) return setErr("Giá phải > 0");
       if (!form.category.trim()) return setErr("Phải chọn danh mục");
 
+      let discountPayload = 0;
+      if (form.hasDiscount) {
+        const d = Number(form.discountPercent);
+        if (isNaN(d) || d < 0 || d > 100) {
+          return setErr("% giảm phải từ 0 đến 100");
+        }
+        discountPayload = d;
+      }
+
       if (editing) {
         await adminUpdateFood(editing, {
           name: form.name,
@@ -74,6 +156,7 @@ export default function AdminFoods() {
           description: form.description,
           image: form.image || undefined,
           isAvailable: !!form.isAvailable,
+          discountPercent: discountPayload,
         });
       } else {
         await adminCreateFood({
@@ -83,8 +166,10 @@ export default function AdminFoods() {
           description: form.description,
           image: form.image || undefined,
           isAvailable: !!form.isAvailable,
+          discountPercent: discountPayload,
         });
       }
+
       cancelEdit();
       await refresh();
     } catch (e2) {
@@ -108,7 +193,30 @@ export default function AdminFoods() {
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0f0b22 0%, #140a33 60%, #000 100%)", color: "#fff" }}>
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)", background: "linear-gradient(180deg, rgba(20,8,60,0.9), rgba(10,6,28,0.9))", position: "sticky", top: 0, zIndex: 10 }}>
-        <h4 style={{ margin: 0, color: "#FFD700", fontWeight: 800 }}>Quản lý món ăn</h4>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div>
+            <div
+              style={{
+                fontSize: 13,
+                color: "#b9b2ff",
+                marginBottom: 2,
+              }}
+            >
+              <Link
+                to="/admin"
+                style={{ color: "#b9b2ff", textDecoration: "none" }}
+              >
+                Bảng điều khiển
+              </Link>
+              <span style={{ opacity: 0.7 }}> / </span>
+              <span style={{ color: "#ffd700" }}>Quản lý món ăn</span>
+            </div>
+            <h4 style={{ margin: 0, color: "#FFD700", fontWeight: 800 }}>
+              Quản lý món ăn
+            </h4>
+          </div>
+        </div>
+
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ textAlign: "right", fontSize: 13, lineHeight: 1.2, color: "#d9d6ff" }}>
             <div style={{ fontWeight: 700 }}>{admin?.name || "Administrator"}</div>
@@ -119,39 +227,48 @@ export default function AdminFoods() {
       </header>
 
       <main style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
-        <section style={{ marginBottom: 20, padding: 16, borderRadius: 14, background: "linear-gradient(145deg, rgba(59,0,120,0.35), rgba(26,0,51,0.35))", border: "1px solid rgba(255,215,0,0.25)" }}>
-          <h5 style={{ color: "#FFD700", marginBottom: 12, fontWeight: 800 }}>{editing ? "Sửa món ăn" : "Thêm món ăn"}</h5>
-          <form onSubmit={handleSubmit} className="row g-2">
-            <div className="col-md-3">
-              <input className="form-control" placeholder="Tên món" value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} />
+        <section style={{ marginBottom: 16, padding: 12, borderRadius: 12, background: "linear-gradient(145deg, rgba(255,255,255,0.03), rgba(0,0,0,0.25))", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="row g-2 align-items-center">
+            <div className="col-md-4">
+              <input
+                className="form-control"
+                placeholder="Lọc theo tên món"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
-            <div className="col-md-2">
-              <input className="form-control" placeholder="Giá" type="number" min="1" value={form.price} onChange={(e) => setForm((s) => ({ ...s, price: e.target.value }))} />
-            </div>
             <div className="col-md-3">
-              <select className="form-select" value={form.category} onChange={(e) => setForm((s) => ({ ...s, category: e.target.value }))}>
-                <option value="">-- Chọn danh mục --</option>
-                {cats.map((c) => (
-                  <option key={c._id || c.name} value={c.name}>{c.name}</option>
-                ))}
+              <select
+                className="form-select"
+                value={discountFilter}
+                onChange={(e) => setDiscountFilter(e.target.value)}
+              >
+                <option value="all">Tất cả giảm giá</option>
+                <option value="on">Chỉ món đang giảm</option>
+                <option value="off">Chỉ món không giảm</option>
               </select>
             </div>
-            <div className="col-md-4">
-              <input className="form-control" placeholder="Ảnh (URL tuỳ chọn)" value={form.image} onChange={(e) => setForm((s) => ({ ...s, image: e.target.value }))} />
+            <div className="col-md-3">
+              <select
+                className="form-select"
+                value={availableFilter}
+                onChange={(e) => setAvailableFilter(e.target.value)}
+              >
+                <option value="all">Tất cả trạng thái bán</option>
+                <option value="available">Chỉ còn bán</option>
+                <option value="unavailable">Chỉ ngừng bán</option>
+              </select>
             </div>
-            <div className="col-12">
-              <textarea className="form-control" placeholder="Mô tả" rows={2} value={form.description} onChange={(e) => setForm((s) => ({ ...s, description: e.target.value }))} />
+            <div className="col-md-2 text-end">
+              <button
+                type="button"
+                className="btn btn-warning w-100"
+                onClick={startCreate}
+              >
+                + Thêm món
+              </button>
             </div>
-            <div className="col-12 d-flex align-items-center gap-2">
-              <input id="available" type="checkbox" checked={form.isAvailable} onChange={(e) => setForm((s) => ({ ...s, isAvailable: e.target.checked }))} />
-              <label htmlFor="available">Còn bán</label>
-            </div>
-            <div className="col-12 d-flex gap-2">
-              <button className="btn btn-warning" disabled={submitting} type="submit">{submitting ? "Đang lưu..." : editing ? "Cập nhật" : "Thêm"}</button>
-              {editing && <button className="btn btn-outline-light" type="button" onClick={cancelEdit}>Hủy</button>}
-            </div>
-          </form>
-          {err && <div style={{ color: "#ff9b9b", marginTop: 10 }}>{err}</div>}
+          </div>
         </section>
 
         <section style={{ padding: 16, borderRadius: 14, background: "linear-gradient(145deg, rgba(255,255,255,0.03), rgba(0,0,0,0.2))", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -162,23 +279,27 @@ export default function AdminFoods() {
               <table className="table table-dark table-striped align-middle">
                 <thead>
                   <tr>
-                    <th style={{ width: 60 }}>#</th>
                     <th>Tên</th>
                     <th>Danh mục</th>
                     <th>Mô tả</th>
                     <th>Giá</th>
+                    <th>Giảm</th>
                     <th>Còn bán</th>
                     <th style={{ width: 200 }} className="text-end">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((f, idx) => (
+                  {pagedItems.map((f) => (
                     <tr key={f._id}>
-                      <td>{idx + 1}</td>
                       <td>{f.name}</td>
                       <td>{f.category}</td>
                       <td style={{ maxWidth: 300, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.description}</td>
                       <td>{f.price.toLocaleString()} đ</td>
+                      <td>
+                        {f.discountPercent && f.discountPercent > 0
+                          ? `${f.discountPercent}%`
+                          : "-"}
+                      </td>
                       <td>{f.isAvailable ? "Có" : "Hết"}</td>
                       <td className="text-end">
                         <div className="d-inline-flex gap-2">
@@ -188,9 +309,9 @@ export default function AdminFoods() {
                       </td>
                     </tr>
                   ))}
-                  {items.length === 0 && (
+                  {filteredItems.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="text-center">Chưa có món ăn.</td>
+                      <td colSpan={6} className="text-center">Chưa có món ăn.</td>
                     </tr>
                   )}
                 </tbody>
@@ -198,7 +319,211 @@ export default function AdminFoods() {
             </div>
           )}
         </section>
+        {filteredItems.length > 0 && (
+          <div className="d-flex justify-content-between align-items-center mt-2">
+            <div style={{ fontSize: 13, color: "#cfc9ff" }}>
+              Trang {currentPage} / {totalPages} (Tổng {filteredItems.length} món)
+            </div>
+            <div className="btn-group btn-group-sm">
+              <button
+                type="button"
+                className="btn btn-outline-light"
+                disabled={currentPage === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Trước
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-light"
+                disabled={currentPage === totalPages}
+                onClick={() =>
+                  setPage((p) => Math.min(totalPages, p + 1))
+                }
+              >
+                Sau
+              </button>
+            </div>
+          </div>
+        )}
+        {showModal && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 1050,
+            }}
+          >
+            <div
+              style={{
+                width: "95%",
+                maxWidth: 900,
+                borderRadius: 16,
+                background:
+                  "linear-gradient(145deg, rgba(59,0,120,0.9), rgba(26,0,51,0.95))",
+                border: "1px solid rgba(255,215,0,0.35)",
+                padding: 20,
+              }}
+            >
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <h5 style={{ color: "#FFD700", margin: 0, fontWeight: 800 }}>
+                  {editing ? "Sửa món ăn" : "Thêm món ăn"}
+                </h5>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-light"
+                  onClick={cancelEdit}
+                >
+                  Đóng
+                </button>
+              </div>
+              <form onSubmit={handleSubmit} className="row g-2">
+                <div className="col-md-3">
+                  <input
+                    className="form-control"
+                    placeholder="Tên món"
+                    value={form.name}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, name: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="col-md-2">
+                  <input
+                    className="form-control"
+                    placeholder="Giá"
+                    type="number"
+                    min="1"
+                    value={form.price}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, price: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="col-md-2 d-flex align-items-center gap-2">
+                  <input
+                    id="hasDiscount"
+                    type="checkbox"
+                    checked={form.hasDiscount}
+                    onChange={(e) =>
+                      setForm((s) => ({
+                        ...s,
+                        hasDiscount: e.target.checked,
+                        discountPercent: e.target.checked
+                          ? s.discountPercent
+                          : "",
+                      }))
+                    }
+                  />
+                  <label htmlFor="hasDiscount" className="mb-0">
+                    Giảm giá
+                  </label>
+                </div>
+                {form.hasDiscount && (
+                  <div className="col-md-2">
+                    <div className="input-group">
+                      <input
+                        className="form-control"
+                        placeholder="% giảm"
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={form.discountPercent}
+                        onChange={(e) =>
+                          setForm((s) => ({
+                            ...s,
+                            discountPercent: e.target.value,
+                          }))
+                        }
+                      />
+                      <span className="input-group-text">%</span>
+                    </div>
+                  </div>
+                )}
+                <div className="col-md-3">
+                  <select
+                    className="form-select"
+                    value={form.category}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, category: e.target.value }))
+                    }
+                  >
+                    <option value="">-- Chọn danh mục --</option>
+                    {cats.map((c) => (
+                      <option key={c._id || c.name} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-md-4">
+                  <input
+                    className="form-control"
+                    placeholder="Ảnh (URL tuỳ chọn)"
+                    value={form.image}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, image: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="col-12">
+                  <textarea
+                    className="form-control"
+                    placeholder="Mô tả"
+                    rows={2}
+                    value={form.description}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, description: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="col-12 d-flex align-items-center gap-2">
+                  <input
+                    id="available"
+                    type="checkbox"
+                    checked={form.isAvailable}
+                    onChange={(e) =>
+                      setForm((s) => ({
+                        ...s,
+                        isAvailable: e.target.checked,
+                      }))
+                    }
+                  />
+                  <label htmlFor="available">Còn bán</label>
+                </div>
+                <div className="col-12 d-flex gap-2 mt-1">
+                  <button
+                    className="btn btn-warning"
+                    disabled={submitting}
+                    type="submit"
+                  >
+                    {submitting
+                      ? "Đang lưu..."
+                      : editing
+                      ? "Cập nhật"
+                      : "Thêm"}
+                  </button>
+                  <button
+                    className="btn btn-outline-light"
+                    type="button"
+                    onClick={cancelEdit}
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </form>
+              {err && (
+                <div style={{ color: "#ff9b9b", marginTop: 10 }}>{err}</div>
+              )}
+            </div>
+          </div>
+        )}
       </main>
+
     </div>
   );
 }

@@ -52,11 +52,24 @@ export default function Menu() {
     }
   }, [focusId, foods]);
 
-  const filteredFoods = useMemo(() => (
-    selectedCategory === "Tất cả"
-      ? foods
-      : foods.filter((item) => item.category === selectedCategory)
-  ), [foods, selectedCategory]);
+  const filteredFoods = useMemo(
+    () =>
+      selectedCategory === "Tất cả"
+        ? foods
+        : foods.filter((item) => item.category === selectedCategory),
+    [foods, selectedCategory]
+  );
+
+  // Sắp xếp: món có giảm giá lên đầu, % giảm cao đứng trước
+  const sortedFoods = useMemo(() => {
+    const copy = [...filteredFoods];
+    copy.sort((a, b) => {
+      const ad = Number(a.discountPercent) || 0;
+      const bd = Number(b.discountPercent) || 0;
+      return bd - ad;
+    });
+    return copy;
+  }, [filteredFoods]);
 
   const ensureLoggedIn = (redirectPath) => {
     if (!user) {
@@ -218,8 +231,8 @@ export default function Menu() {
 
       <div className="row justify-content-center">
         <AnimatePresence mode="wait">
-          {filteredFoods.length > 0 ? (
-            filteredFoods.map((item) => {
+          {sortedFoods.length > 0 ? (
+            sortedFoods.map((item) => {
               const qty = quantities[item._id] ?? 1;
               return (
                 <motion.div
