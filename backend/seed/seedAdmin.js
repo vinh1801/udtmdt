@@ -10,7 +10,7 @@ async function main() {
     await mongoose.connect(process.env.MONGODB_URI);
     const username = "admin";
     const password = "123456";
-    const name = "Administrator";
+    const name = "Vinh";
 
     let user = await User.findOne({ username });
     if (user) {
@@ -26,7 +26,7 @@ async function main() {
         name,
         password: hash,
         role: "admin",
-        email: "admin@example.com"
+        email: "admin@gmail.com"
       });
       console.log("Admin user created:", user.username);
     }

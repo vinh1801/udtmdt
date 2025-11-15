@@ -1,47 +1,115 @@
-# TL-FastFood – Quick Start
 
-## 1. Yêu cầu
-- Node.js ≥ 18 (kèm npm)
-- MongoDB (local hoặc Atlas)
+## 1. Yêu cầu hệ thống
 
-## 2. Biến môi trường
+- Node.js ≥ 18 (kèm `npm`)
+- MongoDB đang chạy (local: `mongodb://127.0.0.1:27017` hoặc Atlas)
 
-**backend/.env**
+---
+
+## 2. Tạo file môi trường
+
+Tại thư mục gốc repo `UDTM_11`:
+
+- **Tạo file `backend/.env`** với nội dung: (nếu chưa có)
+
+```env
 PORT=5000
 MONGODB_URI=mongodb://127.0.0.1:27017/fastfood
 JWT_SECRET=change_this_secret
 JWT_EXPIRES=7d
+```
 
+- **Tạo file `fastfood/.env`** với nội dung: (nếu chưa có)
 
-**fastfood/.env**
+```env
 REACT_APP_API_URL=http://localhost:5000
+```
 
-(Đổi URL nếu backend deploy nơi khác.)
+Nếu backend deploy nơi khác, sửa lại `REACT_APP_API_URL` cho đúng.
 
-## 3. Cài đặt & chạy
+---
 
-### Backend
+## 3. Cài đặt thư viện
+
+Trong thư mục gốc dự án:
+
+1. Cài đặt backend:
+
+   ```bash
+   # Windows PowerShell / CMD
+   npm install --prefix backend
+   ```
+
+2. Cài đặt frontend:
+
+   ```bash
+   npm install --prefix fastfood
+   ```
+
+---
+
+## 4. Khởi tạo dữ liệu mẫu (tùy chọn)
+
+Nếu trong backend có script seed dữ liệu, có thể chạy:
+
+```bash
+npm run seed --prefix backend
+```
+
+(Nếu không có script `seed` thì bỏ qua bước này.)
+
+---
+
+## 5. Chạy dự án ở môi trường dev
+
+Mở **2 terminal** tại thư mục gốc repo.
+
+### 5.1. Chạy backend (API)
+
 cd backend
-npm install
-npm run seed # tùy chọn, tạo dữ liệu mẫu
-npm run dev # http://localhost:5000  =>này là chạy backend
+npm run dev
 
 
-### Frontend
+Backend chạy tại: **http://localhost:5000**
+
+### 5.2. Chạy frontend (React)
+
+Ở terminal thứ hai:
+
 cd fastfood
-npm install
-npm start # http://localhost:3000  =>này là chạy frontend
+npm start
 
 
-> Nếu `nodemon` không chạy, nhớ `cd backend && npm install`.
+Frontend chạy tại: **http://localhost:3000**
 
-## 4. Build
-- Frontend: `cd fastfood && npm run build`
-- Backend deploy: `npm install --production` + `npm start`
+Đảm bảo backend đã chạy trước để frontend gọi API không bị lỗi.
 
-## 5. Ghi chú
-- Để đồng thời: mở hai terminal chạy backend và frontend.
-- Trang thanh toán COD hoạt động; VNPay đang mock (log console).
-- Giỏ hàng lưu localStorage, cần backend online để đăng nhập/checkout.
+---
 
-Clone → tạo `.env` → `npm install` (backend + frontend) → chạy theo bước 3 là dùng được.
+## 6. Tài khoản mặc định
+
+- **Admin:** user: admin/ pass: 123456
+- **User thường:** có thể tự đăng ký trên giao diện / trang đăng ký.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            vinh nhóm 11 udtmdt
+
+Nếu không chắc, cứ đăng ký user mới rồi đăng nhập.
+
+---
+
+## 7. Build & deploy
+
+- Build frontend sản phẩm:
+
+  ```bash
+  cd fastfood
+  npm run build
+  ```
+
+- Backend chạy production (ví dụ trên VPS):
+
+  ```bash
+  cd backend
+  npm install --production
+  npm start
+  ```
+
+---
