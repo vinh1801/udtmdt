@@ -107,44 +107,116 @@ export default function AdminCategories() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "16px 24px",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          background: "linear-gradient(180deg, rgba(20,8,60,0.9), rgba(10,6,28,0.9))",
+          padding: "18px 28px",
+          borderBottom: "1px solid rgba(255,215,0,0.15)",
+          background:
+            "linear-gradient(180deg, rgba(20,8,60,0.98), rgba(10,6,28,0.95))",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,215,0,0.1)",
           position: "sticky",
           top: 0,
-          zIndex: 10,
+          zIndex: 1000,
+          backdropFilter: "blur(10px)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <Link
             to="/admin"
             style={{
-              color: "#ffd700",
+              display: "inline-flex",
+              width: 42,
+              height: 42,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 10,
+              background:
+                "linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,51,204,0.3))",
+              border: "1px solid rgba(255,215,0,0.4)",
+              color: "#FFD700",
+              fontWeight: 800,
+              fontSize: "1.2rem",
               textDecoration: "none",
-              fontSize: 13,
-              opacity: 0.85,
+              transition: "all 0.2s",
+              boxShadow: "0 2px 8px rgba(255,215,0,0.2)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "scale(1.05)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(255,215,0,0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(255,215,0,0.2)";
             }}
           >
-            ← Bảng điều khiển
+            A
           </Link>
-          <h4 style={{ margin: 0, color: "#FFD700", fontWeight: 800 }}>Quản lý danh mục</h4>
+          <div>
+            <div
+              style={{
+                fontSize: 12,
+                color: "#b9b2ff",
+                marginBottom: 4,
+                letterSpacing: "0.01em",
+              }}
+            >
+
+            </div>
+            <h4
+              style={{
+                margin: 0,
+                color: "#FFD700",
+                fontWeight: 700,
+                fontSize: "1.5rem",
+                letterSpacing: "-0.02em",
+                lineHeight: 1.2,
+              }}
+            >
+              Quản lý danh mục
+            </h4>
+          </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ textAlign: "right", fontSize: 13, lineHeight: 1.2, color: "#d9d6ff" }}>
-            <div style={{ fontWeight: 700 }}>{admin?.name || "Administrator"}</div>
-            <div style={{ opacity: 0.8 }}>{admin?.username}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div
+            style={{
+              textAlign: "right",
+              fontSize: 13,
+              lineHeight: 1.4,
+              color: "#d9d6ff",
+              paddingRight: 16,
+              borderRight: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            <div style={{ fontWeight: 700, color: "#fff" }}>
+              {admin?.name || "Administrator"}
+            </div>
+            <div style={{ opacity: 0.75, fontSize: 12 }}>{admin?.username}</div>
           </div>
           <button
             onClick={logout}
             style={{
-              padding: "8px 12px",
-              borderRadius: 10,
+              padding: "10px 18px",
+              borderRadius: 8,
               border: "1px solid rgba(255,215,0,0.4)",
-              background: "linear-gradient(90deg, rgba(255,215,0,0.15), rgba(255,51,204,0.15))",
+              background:
+                "linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,51,204,0.2))",
               color: "#FFD700",
               cursor: "pointer",
-              fontWeight: 700,
+              fontWeight: 600,
+              fontSize: "0.9rem",
+              transition: "all 0.2s",
+              boxShadow: "0 2px 8px rgba(255,215,0,0.15)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,51,204,0.3))";
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(255,215,0,0.25)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,51,204,0.2))";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(255,215,0,0.15)";
             }}
           >
             Đăng xuất
