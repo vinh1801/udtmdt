@@ -94,22 +94,3 @@ Frontend chạy tại: **http://localhost:3000**
 Nếu không chắc, cứ đăng ký user mới rồi đăng nhập.
 
 ---
-
-## 7. Build & deploy
-
-- Build frontend sản phẩm:
-
-  ```bash
-  cd fastfood
-  npm run build
-  ```
-
-- Backend chạy production (ví dụ trên VPS):
-
-  ```bash
-  cd backend
-  npm install --production
-  npm start
-  ```
-
----
