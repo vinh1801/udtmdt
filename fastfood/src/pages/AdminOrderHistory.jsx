@@ -135,7 +135,7 @@ export default function AdminOrderHistory() {
                 letterSpacing: "0.01em",
               }}
             >
-              Khu vực quản trị
+
             </div>
             <h4
               style={{

@@ -11,6 +11,7 @@ async function main() {
     const username = "admin";
     const password = "123456";
     const name = "Vinh";
+    const phone = "0900000000";
 
     let user = await User.findOne({ username });
     if (user) {
@@ -24,10 +25,12 @@ async function main() {
       user = await User.create({
         username,
         name,
+        phone,
         password: hash,
         role: "admin",
-        email: "admin@gmail.com"
+        email: "admin@gmail.com",
       });
+
       console.log("Admin user created:", user.username);
     }
   } catch (e) {
